@@ -1,6 +1,10 @@
 package Library_Management_System;
 
 
+import Library_Management_System.Exceptions.BookAlreadyIssuedException;
+import Library_Management_System.Exceptions.BookAlreadyReturnedException;
+import Library_Management_System.Exceptions.BookNotFoundException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,11 +19,13 @@ public class Library {
         books=new HashMap<>();
     }
 
-    public void addBook(Book book){
+    public void addBook(Book book) throws BookAlreadyIssuedException{
         int id=book.getBookId();
 
+
         if(books.containsKey(id)){
-            System.out.println(book.getTitle()+"is"+" Already Issued");
+            System.out.println(book.getTitle());
+            throw new BookAlreadyIssuedException();
         }else{
             books.put(id,book);
             System.out.println("Book added successfully.");
@@ -27,27 +33,31 @@ public class Library {
 
     }
 
-    public void issueBook(int bookId){
-        Book book=books.get(bookId);
-        if(books.containsKey(bookId)){
-            book.setIssued(true);
-        }else if(book==null){
-            System.out.println("Book Not Found");
+    public void issueBook(int bookId) throws BookNotFoundException ,BookAlreadyIssuedException{
+
+        if (!books.containsKey(bookId)) {
+            throw new BookNotFoundException();
         }
-        else{
-            System.out.println("Already issued");
+
+        Book book = books.get(bookId);
+
+        if (book.isIssued()) {
+            throw new BookAlreadyIssuedException();
+        } else {
+            book.setIssued(true);
+            System.out.println("Book issued Successfully");
         }
     }
 
-    public void returnBook(int bookId) {
+    public void returnBook(int bookId) throws BookNotFoundException, BookAlreadyReturnedException {
 
         Book book = books.get(bookId);
 
         if (book == null) {
-            System.out.println("Book not found");
+            throw new BookNotFoundException();
         }
         else if (!book.isIssued()) {
-            System.out.println("Book is already available");
+            throw new BookAlreadyReturnedException();
         }
         else {
             book.setIssued(false);
